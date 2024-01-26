@@ -13,6 +13,8 @@ public class PlayerController2 : MonoBehaviour
     [SerializeField] private float movementSpeed;
     [SerializeField] private float rotationSpeed;
     [SerializeField] private Animator anim;
+
+    private GameObject characterModel;
     
     private Touch touch;
     private Vector3 touchFirst;
@@ -25,6 +27,11 @@ public class PlayerController2 : MonoBehaviour
     public LayerMask layer;
     private bool hasTarget = false;
     public float closeDistance = 5;
+
+    private void Start()
+    {
+        characterModel = anim.gameObject;
+    }
 
     void Update()
     {
@@ -95,10 +102,20 @@ public class PlayerController2 : MonoBehaviour
                 var direction = EnemiesiinTarget[i].transform.position - transform.position;
                 direction.y = 0;
                 direction = direction.normalized;
+
+                Quaternion targetRotation = Quaternion.LookRotation(direction , Vector3.up);
+                characterModel.transform.rotation = Quaternion.Lerp(characterModel.transform.rotation, targetRotation,
+                    Time.deltaTime * 10f);
+                
                 // Destroy(other.gameObject);
                 //transform.LookAt(EnemiesiinTarget[i].transform.position);
                 shootController.Shoot(direction);
                 hasTarget = false;
+            }
+            else if (Vector3.Distance(transform.position, EnemiesiinTarget[i].transform.position) >= closeDistance)
+            {
+                characterModel.transform.rotation = Quaternion.Lerp(characterModel.transform.rotation, transform.rotation,
+                    Time.deltaTime * 10f);
             }
         }
     }
